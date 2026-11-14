@@ -103,6 +103,12 @@ The Blueprint uses free plans, which suit a demo only: the free database is
 deleted after 30 days and the web service sleeps when idle. It also ships with
 `ENABLE_SIMULATOR=true`.
 
+## What is proposed next
+
+Brand-designed challenges, more challenge types and linking members to a brand's
+customer records are scoped, not built, in
+[`docs/scope-brand-challenges-and-account-linking.md`](docs/scope-brand-challenges-and-account-linking.md).
+
 ## Known limits
 
 - Challenges are evaluated when the member opens the app. There is no scheduled
