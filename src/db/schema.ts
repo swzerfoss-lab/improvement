@@ -252,8 +252,7 @@ export const brandConsents = pgTable(
     brandId: uuid("brand_id")
       .notNull()
       .references(() => brands.id, { onDelete: "cascade" }),
-    // Declared profile (sports, sizes, region) counted in this brand's
-    // aggregate insights.
+    // Declared sports and region counted in this brand's aggregate insights.
     shareProfile: boolean("share_profile").notNull().default(false),
     // Email and name visible to this brand.
     shareEmail: boolean("share_email").notNull().default(false),

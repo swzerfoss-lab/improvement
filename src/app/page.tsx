@@ -24,7 +24,7 @@ const BRAND_POINTS = [
   },
   {
     title: "Earn the relationship",
-    body: "Members choose what to share with you: what they want, their sizes, their sports, and whether to hear from you.",
+    body: "See what members want through wishlists and reservations, and reach the ones who choose to hear from you.",
   },
   {
     title: "Move inventory with meaning",
@@ -112,8 +112,9 @@ export default function Home() {
           <div className="rounded-2xl border border-zinc-200 bg-white p-6">
             <h3 className="font-semibold">What you can choose to share</h3>
             <p className="mt-2 text-sm text-zinc-600">
-              Your wishlist, sizes and sports, and your email if you want to
-              hear from a brand. Brand by brand, and you can change your mind.
+              Your sports and region, counted only inside group totals, and
+              your email if you want to hear from a brand. Brand by brand,
+              and you can change your mind.
             </p>
           </div>
         </div>

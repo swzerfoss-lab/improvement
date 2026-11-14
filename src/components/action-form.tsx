@@ -1,7 +1,11 @@
 "use client";
 
-import { useActionState, type ReactNode } from "react";
-import { useFormStatus } from "react-dom";
+import {
+  startTransition,
+  useActionState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { btn, type BtnVariant } from "./ui";
 
 export type ActionState = { error?: string; ok?: string } | null;
@@ -20,10 +24,23 @@ export function ActionForm({
   children: ReactNode;
   className?: string;
 }) {
-  const [state, formAction] = useActionState(action, null);
+  const [state, formAction, pending] = useActionState(action, null);
+
+  // Submitting through the `action` prop makes React clear the form when the
+  // action returns, which would wipe what was typed whenever validation
+  // fails. Dispatching by hand keeps the fields as they are.
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const submitter = (event.nativeEvent as SubmitEvent).submitter;
+    const formData = new FormData(event.currentTarget, submitter);
+    startTransition(() => formAction(formData));
+  }
+
   return (
-    <form action={formAction} className={className}>
-      {children}
+    <form action={formAction} onSubmit={onSubmit}>
+      <fieldset disabled={pending} className={`min-w-0 ${className ?? ""}`}>
+        {children}
+      </fieldset>
       {state?.error && (
         <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
           {state.error}
@@ -47,9 +64,8 @@ export function SubmitButton({
   variant?: BtnVariant;
   className?: string;
 }) {
-  const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className={`${btn(variant)} ${className}`}>
+    <button type="submit" className={`${btn(variant)} ${className}`}>
       {children}
     </button>
   );
