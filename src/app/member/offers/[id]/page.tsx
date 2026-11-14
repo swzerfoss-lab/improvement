@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
@@ -11,7 +11,7 @@ import { GRACE_DAYS, MAX_PAUSE_DAYS } from "@/engine/evaluate";
 import { buildTarget, DAILY_CREDIT_CAP, isTierId, TIERS } from "@/engine/tiers";
 import { getConnection, memberToday } from "@/lib/activity";
 import { requireRole } from "@/lib/auth";
-import { getOffers, isOpen, OPEN_STATUSES } from "@/lib/campaigns";
+import { getOffers, isOpen } from "@/lib/campaigns";
 import { currentBaseline } from "@/lib/challenges";
 import { isEligible } from "@/lib/offers";
 import { commit } from "../../actions";
@@ -26,13 +26,13 @@ export default async function OfferPage({ params }: PageProps<"/member/offers/[i
   if (!offer || !isTierId(offer.campaign.tier)) notFound();
 
   const today = memberToday(conn);
-  const [[profile], baseline, openChallenges] = await Promise.all([
+  const [[profile], baseline, mine] = await Promise.all([
     db.select().from(memberProfiles).where(eq(memberProfiles.userId, user.id)),
     currentBaseline(user.id, today),
     db
-      .select({ id: challenges.id })
+      .select({ campaignId: challenges.campaignId, status: challenges.status })
       .from(challenges)
-      .where(and(eq(challenges.memberId, user.id), inArray(challenges.status, OPEN_STATUSES))),
+      .where(eq(challenges.memberId, user.id)),
   ]);
 
   const { campaign, product, brand } = offer;
@@ -43,15 +43,17 @@ export default async function OfferPage({ params }: PageProps<"/member/offers/[i
     offer.sizes.find((s) => s.size === mySize && s.left > 0) ??
     (offer.sizes.length === 1 && offer.sizes[0].left > 0 ? offer.sizes[0] : undefined);
 
-  const blocked = !isOpen(campaign, today)
-    ? "This offer is not open right now."
-    : !isEligible(campaign, profile)
-      ? "This offer is for a different audience."
-      : openChallenges.length > 0
-        ? "You already have a challenge running. Finish or withdraw from it to start another."
-        : offer.totalLeft === 0
-          ? "Every unit is reserved right now. One may free up if someone withdraws."
-          : null;
+  const blocked = mine.some((c) => c.campaignId === campaign.id && c.status === "achieved")
+    ? "You have already earned this reward."
+    : !isOpen(campaign, today)
+      ? "This offer is not open right now."
+      : !isEligible(campaign, profile)
+        ? "This offer is for a different audience."
+        : mine.some((c) => c.status === "active" || c.status === "in_review")
+          ? "You already have a challenge running. Finish or withdraw from it to start another."
+          : offer.totalLeft === 0
+            ? "Every unit is reserved right now. One may free up if someone withdraws."
+            : null;
 
   const rules = [
     `Only minutes your device records count, up to ${DAILY_CREDIT_CAP} a day. Typed-in entries do not.`,
