@@ -125,6 +125,7 @@ CREATE TABLE "source_connections" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"member_id" uuid NOT NULL,
 	"provider" text NOT NULL,
+	"external_user_id" text,
 	"simulator_persona" text,
 	"clock_offset_days" integer DEFAULT 0 NOT NULL,
 	"access_token_enc" text,
@@ -171,4 +172,5 @@ ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY
 ALTER TABLE "source_connections" ADD CONSTRAINT "source_connections_member_id_users_id_fk" FOREIGN KEY ("member_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wishlist_items" ADD CONSTRAINT "wishlist_items_member_id_users_id_fk" FOREIGN KEY ("member_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wishlist_items" ADD CONSTRAINT "wishlist_items_campaign_id_campaigns_id_fk" FOREIGN KEY ("campaign_id") REFERENCES "public"."campaigns"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "one_open_challenge_per_member" ON "challenges" USING btree ("member_id") WHERE "challenges"."status" in ('active', 'in_review');
+CREATE UNIQUE INDEX "one_open_challenge_per_member" ON "challenges" USING btree ("member_id") WHERE "challenges"."status" in ('active', 'in_review');--> statement-breakpoint
+CREATE UNIQUE INDEX "one_member_per_external_account" ON "source_connections" USING btree ("provider","external_user_id");

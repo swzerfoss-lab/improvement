@@ -1,7 +1,9 @@
 "use server";
 
 import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
+import { randomBytes } from "node:crypto";
 import { refresh } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { ActionState } from "@/components/action-form";
@@ -23,6 +25,13 @@ import { destroySession, requireRole } from "@/lib/auth";
 import { commitToChallenge, withdrawOpenChallenge } from "@/lib/challenges";
 import { REGIONS, SIZES, SPORTS } from "@/lib/constants";
 import { simulatorEnabled } from "@/sources";
+import {
+  CALLBACK_PATH,
+  STATE_COOKIE,
+  authorizationUrl,
+  googleHealthEnabled,
+  revokeGoogleAccess,
+} from "@/sources/google-health";
 import { isPersona } from "@/sources/simulator";
 
 const CONSENT_ERROR = "Please confirm you have read what we read and what brands see.";
@@ -52,8 +61,31 @@ export async function connectSimulator(
   redirect("/member/settings?welcome=1");
 }
 
+/** Sends the member to Google to approve read-only access to exercise. */
+export async function connectGoogleHealth(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const user = await requireRole("member");
+  if (!googleHealthEnabled()) return { error: "Google Health is not set up." };
+  if (formData.get("consent") !== "on") return { error: CONSENT_ERROR };
+  if (await getConnection(user.id)) return { error: "A source is already connected." };
+
+  const state = randomBytes(32).toString("base64url");
+  (await cookies()).set(STATE_COOKIE, state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: CALLBACK_PATH,
+    maxAge: 600,
+  });
+  redirect(authorizationUrl(state));
+}
+
 export async function disconnectSource(): Promise<void> {
   const user = await requireRole("member");
+  const conn = await getConnection(user.id);
+  if (conn?.provider === "google_health") await revokeGoogleAccess(conn);
   await db.transaction(async (tx) => {
     await withdrawOpenChallenge(user.id, tx);
     await tx.delete(sourceConnections).where(eq(sourceConnections.memberId, user.id));
@@ -216,6 +248,8 @@ export async function deleteAccount(
   if (formData.get("confirm") !== "DELETE") {
     return { error: 'Type "DELETE" to confirm.' };
   }
+  const conn = await getConnection(user.id);
+  if (conn?.provider === "google_health") await revokeGoogleAccess(conn);
   // Cascades remove the profile, activity, baselines, challenges, wishlist,
   // consents and sessions. Issued redemption codes stay with the brand,
   // detached from the member.

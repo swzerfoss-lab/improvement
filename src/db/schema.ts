@@ -56,25 +56,35 @@ export const memberProfiles = pgTable("member_profiles", {
   shoeSize: text("shoe_size"),
 });
 
-export const sourceConnections = pgTable("source_connections", {
-  id: id(),
-  // One source per member, so two devices can never double-count a workout.
-  memberId: uuid("member_id")
-    .notNull()
-    .unique()
-    .references(() => users.id, { onDelete: "cascade" }),
-  provider: text("provider").notNull(),
-  simulatorPersona: text("simulator_persona"),
-  // Simulator only: lets a demo skip ahead in time.
-  clockOffsetDays: integer("clock_offset_days").notNull().default(0),
-  accessTokenEnc: text("access_token_enc"),
-  refreshTokenEnc: text("refresh_token_enc"),
-  tokenExpiresAt: timestamp("token_expires_at", { withTimezone: true }),
-  connectedOn: day("connected_on").notNull(),
-  // Last day (on the member's clock) that activity was fetched for.
-  syncedThrough: day("synced_through"),
-  lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
-});
+export const sourceConnections = pgTable(
+  "source_connections",
+  {
+    id: id(),
+    // One source per member, so two devices can never double-count a workout.
+    memberId: uuid("member_id")
+      .notNull()
+      .unique()
+      .references(() => users.id, { onDelete: "cascade" }),
+    provider: text("provider").notNull(),
+    // The provider's own id for the account, when it has one.
+    externalUserId: text("external_user_id"),
+    simulatorPersona: text("simulator_persona"),
+    // Simulator only: lets a demo skip ahead in time.
+    clockOffsetDays: integer("clock_offset_days").notNull().default(0),
+    accessTokenEnc: text("access_token_enc"),
+    refreshTokenEnc: text("refresh_token_enc"),
+    tokenExpiresAt: timestamp("token_expires_at", { withTimezone: true }),
+    connectedOn: day("connected_on").notNull(),
+    // Last day (on the member's clock) that activity was fetched for.
+    syncedThrough: day("synced_through"),
+    lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
+  },
+  (t) => [
+    // One wearable account can back only one member, so the same workouts
+    // cannot earn rewards twice.
+    uniqueIndex("one_member_per_external_account").on(t.provider, t.externalUserId),
+  ],
+);
 
 export const dailyActivity = pgTable(
   "daily_activity",

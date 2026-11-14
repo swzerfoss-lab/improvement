@@ -5,8 +5,9 @@ import { DAILY_CREDIT_CAP } from "@/engine/tiers";
 import { getConnection } from "@/lib/activity";
 import { requireRole } from "@/lib/auth";
 import { simulatorEnabled } from "@/sources";
+import { googleHealthEnabled } from "@/sources/google-health";
 import { PERSONAS } from "@/sources/simulator";
-import { connectSimulator } from "../actions";
+import { connectGoogleHealth, connectSimulator } from "../actions";
 
 const WE_READ = [
   "Minutes of activity each day, as recorded by your device",
@@ -26,6 +27,15 @@ const BRANDS_NEVER_SEE = [
   "Whether you personally are part-way through, paused, or missed a goal",
 ];
 
+const CONNECT_ERRORS: Record<string, string> = {
+  declined: "Google did not share access, so nothing was connected.",
+  taken: "That Google account is already connected to another member.",
+  failed: "We could not connect to Google. Please try again.",
+};
+
+const CONSENT_LABEL =
+  "I have read what you read and what brands see, and I agree to my activity being used to set and check my goals.";
+
 function List({ items }: { items: string[] }) {
   return (
     <ul className="mt-3 space-y-2 text-sm text-zinc-700">
@@ -39,9 +49,11 @@ function List({ items }: { items: string[] }) {
   );
 }
 
-export default async function ConnectPage() {
+export default async function ConnectPage({ searchParams }: PageProps<"/member/connect">) {
   const user = await requireRole("member");
   if (await getConnection(user.id)) redirect("/member");
+  const { error } = await searchParams;
+  const connectError = typeof error === "string" ? CONNECT_ERRORS[error] : undefined;
 
   return (
     <>
@@ -73,6 +85,29 @@ export default async function ConnectPage() {
         </Card>
       </div>
 
+      {connectError && (
+        <p role="alert" className="mt-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
+          {connectError}
+        </p>
+      )}
+
+      {googleHealthEnabled() && (
+        <Card className="mt-6">
+          <h2 className="font-semibold">Fitbit or Pixel Watch</h2>
+          <p className="mt-1 text-sm text-zinc-600">
+            Connects through Google Health. Google will ask you to approve
+            read-only access to your exercise sessions, and nothing else.
+          </p>
+          <ActionForm action={connectGoogleHealth} className="mt-4">
+            <label className="flex items-start gap-2 text-sm text-zinc-700">
+              <input type="checkbox" name="consent" className="mt-0.5" required />
+              {CONSENT_LABEL}
+            </label>
+            <SubmitButton className="mt-5">Continue to Google</SubmitButton>
+          </ActionForm>
+        </Card>
+      )}
+
       {simulatorEnabled() && (
         <Card className="mt-6">
           <div className="flex flex-wrap items-center gap-2">
@@ -103,15 +138,14 @@ export default async function ConnectPage() {
             </fieldset>
             <label className="mt-5 flex items-start gap-2 text-sm text-zinc-700">
               <input type="checkbox" name="consent" className="mt-0.5" required />
-              I have read what you read and what brands see, and I agree to my
-              activity being used to set and check my goals.
+              {CONSENT_LABEL}
             </label>
             <SubmitButton className="mt-5">Connect simulated wearable</SubmitButton>
           </ActionForm>
         </Card>
       )}
 
-      {!simulatorEnabled() && (
+      {!simulatorEnabled() && !googleHealthEnabled() && (
         <Card className="mt-6">
           <p className="text-sm text-zinc-600">
             No wearable connections are available yet.
