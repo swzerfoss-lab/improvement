@@ -1,0 +1,37 @@
+# Free plans are for the first demo only: a free Postgres database expires
+# after 30 days and a free web service spins down when idle. Change both
+# `plan` values before real members or brands use this.
+databases:
+  - name: everyday-athlete-db
+    plan: free
+
+services:
+  - type: web
+    name: everyday-athlete
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    # Migrations run at start because preDeployCommand needs a paid plan.
+    startCommand: npm run db:migrate && npm run start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: everyday-athlete-db
+          property: connectionString
+      - key: TOKEN_ENCRYPTION_KEY
+        generateValue: true
+      # Simulated wearables let anyone "earn" rewards from invented data.
+      # Set to "false" before any brand funds a real reward.
+      - key: ENABLE_SIMULATOR
+        value: "true"
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
