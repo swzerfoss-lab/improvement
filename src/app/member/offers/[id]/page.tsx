@@ -52,7 +52,7 @@ export default async function OfferPage({ params }: PageProps<"/member/offers/[i
         : mine.some((c) => c.status === "active" || c.status === "in_review")
           ? "You already have a challenge running. Finish or withdraw from it to start another."
           : offer.totalLeft === 0
-            ? "Every unit is reserved right now. One may free up if someone withdraws."
+            ? "No units are available right now. If someone holding one withdraws, it opens up again."
             : null;
 
   const rules = [

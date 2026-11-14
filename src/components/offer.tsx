@@ -37,7 +37,7 @@ export function OfferCard({
       </h3>
       <p className="mt-1 text-sm text-zinc-500">
         Worth {money(product.retailValueCents)}
-        {offer.totalLeft === 0 ? " · All reserved" : ` · ${offer.totalLeft} left`}
+        {offer.totalLeft === 0 ? " · None available" : ` · ${offer.totalLeft} left`}
       </p>
       <p className="mt-4 flex-1 rounded-xl bg-zinc-50 p-3 text-sm text-zinc-700">
         <span className="font-semibold text-zinc-950">Earn it: </span>
