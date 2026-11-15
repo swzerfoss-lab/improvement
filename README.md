@@ -108,6 +108,8 @@ deleted after 30 days and the web service sleeps when idle. It also ships with
 Brand-designed challenges, more challenge types and linking members to a brand's
 customer records are scoped, not built, in
 [`docs/scope-brand-challenges-and-account-linking.md`](docs/scope-brand-challenges-and-account-linking.md).
+A first-pass legal review, which is not a lawyer's advice, is in
+[`docs/legal-first-pass.md`](docs/legal-first-pass.md).
 
 ## Known limits
 
