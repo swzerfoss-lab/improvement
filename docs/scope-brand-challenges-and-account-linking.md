@@ -16,6 +16,7 @@ Two decisions in the original plan are reversed by this: "brands choose a tier; 
 - **Heart-rate challenges use time in personal heart-rate zones, never a bpm number.** A fixed bpm is unfair and can be unsafe; zone minutes are already personalised by the device.
 - **Link identities freely, with consent, and send brands per-member events.** Decided 15 November. Events the member chose (linked, joined) go to the brand directly. "Earned" reaches the brand when the member redeems in the brand's store, which works for every device. Sending "earned" at the moment of achievement is switched on per device platform as each one agrees; for Apple Watch data that is an open question to put to Apple, in a narrow form. See "Events to the brand" in section 2.
 - **Build the generic signed join link first, then a Shopify app.** The join link gives "create a linked account quickly" for any brand. The Shopify app adds one-click joining, automatic single-use codes and order data, and removes the current "codes are honoured by hand" limit.
+- **Scan up to six months of history on connect and place each member in an athlete level.** Added 16 November. Goals can no longer be lowered by easing off before joining, and a device with no history earns small rewards only. Brands see the mix of levels as group totals and can aim a challenge at chosen levels. See "Athlete level from history" in section 1.
 - **Devices before more challenge types.** Decided 15 November. Today only Fitbit and Pixel Watch connect. Garmin comes next, then Apple Watch.
 
 ## 1. Brand-designed challenges
@@ -78,8 +79,49 @@ Field names are from the Google Health API v4 `exercise` data type, which the ap
 - **The app cannot verify which shoe was worn.** Google's data has no gear field. The honest versions of this campaign are: the shoe is the reward for a running challenge; or members who earned the shoe are offered a follow-on challenge.
 - **Device coverage is the real limit.** Committed runners mostly record on Garmin or Apple Watch. Garmin requires a business application, and reportedly now charges new partners a $1,000 entry fee plus a negotiated fee per active user (reported by DC Rainmaker, [summarised here](https://sahha.ai/blog/garmin-connect-api-reopened-fees/); Garmin publishes no prices). Apple Watch needs a native iOS app. Strava's API terms rule it out as a source.
 
+### Athlete level from history (added 16 November)
+
+The owner's requirement: when a member connects a device, scan the last three to six months, place the member in an athlete level, use it to stop fit athletes posing as beginners, and tell brands more about who they are sponsoring.
+
+**What happens today.** A goal is set from the last 28 days only. That leaves two ways to get an easier goal:
+
+- Ease off for four weeks before joining.
+- Connect a device with no history. The app then uses each tier's minimum goal, including on the top tier.
+
+**Design.**
+
+- **Scan.** On connect, read up to 26 weeks. The level comes from the member's typical week (the median), not their best one, so a single big month does not define them.
+- **Levels**, by typical device-recorded active minutes a week: Getting started (under 60), Building (60 to 149), Regular (150 to 299), Committed (300 or more). 150 minutes is the [WHO guideline](https://www.who.int/news-room/fact-sheets/detail/physical-activity) for adults and 300 is twice that. These thresholds are a starting point to tune on real data. Running challenges do the same with weekly distance.
+- **Goals.** Set from the higher of the last four weeks and 80% of the typical week. Easing off before joining no longer lowers the goal.
+- **Too little history.** With fewer than eight weeks of data the level is provisional, and only Starter rewards can be earned until eight weeks exist. This closes the new-device route. The cost is that an honest member with a new watch waits for bigger rewards.
+- **Coming back.** A member returning from injury, illness, pregnancy or a long break can ask for goals set from recent weeks. Rewards are then limited to Starter until they have rebuilt for eight weeks. An honest member gets a safe goal, and pretending gains nothing.
+- **Openness.** The member sees their level and the figures behind it, and can query it. The level is recomputed as new data arrives.
+- **Storage.** Keep weekly totals for the history window, not every old session.
+
+**What it does not stop.**
+
+- Someone else wearing the device.
+- A second account on a different device account. It has no history, so the provisional rule limits it to Starter rewards.
+- Fitness that does not show as volume: a strong athlete who trains little. Pace at a given heart rate would catch this, at the price of reading more data. Not proposed now.
+
+**What brands get.**
+
+- The mix of levels among members who joined and who earned, as group totals of five or more.
+- The choice to open a challenge to chosen levels only.
+- A preview in the challenge builder of the goal each level would be set.
+- Not a per-member level. It is derived from wearable data, so it falls under the same rule as class 3 events in section 2.
+- One consequence has to be disclosed: joining a challenge that is open only to some levels tells a linked brand roughly how active that member is. The link consent must say so.
+
+**Rules and limits.**
+
+- The connect screen has to say that up to six months is read and that brands see the level mix. Google's policy covers aggregated data too, so this needs the member's consent like any other use.
+- Google: the existing integration asks for a date range, so 26 weeks is a parameter change. How far back Google returns data has not been checked against a live account.
+- Garmin: whether history can be requested, and how far back, is unknown until the developer programme grants access to its documentation.
+- Apple Watch: history is on the member's phone and readable with their permission.
+
 ### What changes in the code
 
+- **History scan and level**: the first sync reads 26 weeks instead of 35 days; the baseline gains a typical week, weeks of history and a level; goals use the rule above; tiers above Starter are refused for provisional and coming-back members; campaigns gain a level filter; the brand dashboard gains the level mix. The simulator gains two personas: a fit athlete who eased off, and a fit athlete with a new device.
 - **Activity storage**: store one record per exercise session (type, duration, distance, zone minutes, elevation, GPS flag, heart rate, device-recorded or not) instead of one row of minutes per day. Daily totals become derived.
 - **Engine** (`src/engine`): `ChallengeTarget` becomes a description of metric, activities, format, amount and goal mode. Baselines are computed per metric. Evaluation stays a pure function with tests. A rating function replaces picking a tier directly.
 - **Simulator**: personas produce sessions with distance and zones, plus new cheats (a drive logged as a run, a ride labelled as a run).
@@ -188,11 +230,12 @@ Three applications decide the pace and only the owner can make them. They should
 Steps, each usable on its own:
 
 1. **Garmin source.** A second `ActivitySource`, storing one record per exercise session so later challenge types do not need a second migration. Garmin's API documentation is available only to approved partners, so how data arrives is unconfirmed. If Garmin calls the app when new data arrives instead of being polled, this step also brings the inbound endpoint and the background worker. Gated on Garmin's approval.
-2. **Signed join link, per-brand link consent and class 1 events.** New tables, one endpoint, one consent screen and a signed outbound webhook. Not gated on anyone, so it can be built while step 1 waits.
-3. **Shopify app**: one-click join, automatic single-use codes, order intake, class 1 and 2 tags, impact dashboard. Gated on Shopify's review and its approval for protected customer data.
-4. **Apple Watch.** A native iOS app that reads HealthKit and uploads sessions. A separate codebase that needs a Mac to build, and Apple's review of the reward model.
-5. **Generalised engine and new challenge types**: distance and activity filters, then intensity and fixed mode.
-6. **Class 3 events**, switched on for each device platform that has agreed.
+2. **History scan and athlete level.** Works with the simulator and the Google source that exist today. Not gated on anyone, and it should be in place before real rewards are funded.
+3. **Signed join link, per-brand link consent and class 1 events.** New tables, one endpoint, one consent screen and a signed outbound webhook. Not gated on anyone, so it can be built while step 1 waits.
+4. **Shopify app**: one-click join, automatic single-use codes, order intake, class 1 and 2 tags, impact dashboard. Gated on Shopify's review and its approval for protected customer data.
+5. **Apple Watch.** A native iOS app that reads HealthKit and uploads sessions. A separate codebase that needs a Mac to build, and Apple's review of the reward model.
+6. **Generalised engine and new challenge types**: distance and activity filters, then intensity and fixed mode.
+7. **Class 3 events**, switched on for each device platform that has agreed.
 
 Garmin is ahead of Apple Watch because it fits the existing web app, it is what committed runners wear, and its terms allow more with approval. Apple Watch reaches more people but needs a second app and has the strictest rules on what brands may learn. Other watches with their own APIs (Polar, Coros, Suunto, Oura, Whoop) have not been researched.
 
@@ -205,6 +248,8 @@ Before any real member or brand goes live: terms of service, privacy policies an
 3. **Brands receive per-member events.** Implemented as the three classes in "Events to the brand". This reverses my earlier recommendation to wait.
 4. **Devices before more challenge types.** Garmin, then Apple Watch.
 5. **Legal review:** first pass by the AI agent, in [`legal-first-pass.md`](legal-first-pass.md). It is issue-spotting and does not replace a licensed attorney.
+
+Added 16 November: scan up to six months of history on connect and place each member in an athlete level. See "Athlete level from history" in section 1.
 
 ### What the big brands use
 
@@ -219,4 +264,4 @@ From public engineering posts, vendor case studies and job listings; not confirm
 
 - The largest brands do not run on Shopify and would not install a Shopify app. Each would be its own integration, using "sign in with the brand" (option D) and the generic signed webhooks.
 - Shopify is still the right first target. It is where the direct-to-consumer athletic brands most likely to try a new programme are, and one app reaches all of them.
-- The signed join link and signed webhooks in step 2 are written to work without Shopify, so the route to a Nike-sized brand stays open.
+- The signed join link and signed webhooks in step 3 are written to work without Shopify, so the route to a Nike-sized brand stays open.
