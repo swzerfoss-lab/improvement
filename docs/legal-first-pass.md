@@ -12,7 +12,7 @@ Ratings: **Blocker** (cannot ship as designed), **High** (likely enforcement, re
 
 | # | Issue | Rating | What to do |
 | --- | --- | --- | --- |
-| 1 | Sending per-member "earned" events to a brand's marketing tools | Blocker for Apple data; High for Google; approval needed for Garmin | Route the "earned" signal through redemption; send other events directly; gate direct "earned" events per device source (section 2) |
+| 1 | Sending per-member "earned" events to a brand's marketing tools | Blocker for Apple data as marketing, with a narrow form open to argument; High for Google; approval needed for Garmin | Route the "earned" signal through redemption; send other events directly; gate direct "earned" events per device source (section 2) |
 | 2 | Apple's rule that the benefit provider must be the app's publisher | High | Contract so the platform grants the reward and the brand supplies and ships it (section 3) |
 | 3 | Google's verification of the core use case | High | Describe brand-funded rewards and every data flow in the verification submission; do not rely on silence |
 | 4 | State health-data laws (Washington, Nevada, others) | High | Separate consent to share, a signed authorization where data is exchanged for value, a health-data privacy policy (section 4) |
@@ -35,7 +35,7 @@ The owner decided brands should receive per-member events in their own marketing
 
 ### What the terms say
 
-- **Apple.** HealthKit's rules: "You must not disclose any information gained through HealthKit to a third party without express permission from the user. Even with permission, you can only share information to a third party if they also provide a health or fitness service to the user", and the data may not be used "for advertising or similar services". ([Protecting user privacy](https://developer.apple.com/documentation/healthkit/protecting-user-privacy)) Guideline 5.1.3(i) bars disclosure to third parties "for advertising, marketing, or other use-based data mining purposes". ([App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/#health-and-health-research)) An apparel brand's marketing platform is not a health or fitness service. On the text, consent does not cure this. **Rating: Blocker** for achievements verified from Apple Watch data.
+- **Apple.** HealthKit's rules: "You must not disclose any information gained through HealthKit to a third party without express permission from the user. Even with permission, you can only share information to a third party if they also provide a health or fitness service to the user", and the data may not be used "for advertising or similar services". ([Protecting user privacy](https://developer.apple.com/documentation/healthkit/protecting-user-privacy)) Guideline 5.1.3(i) bars disclosure to third parties "for advertising, marketing, or other use-based data mining purposes". ([App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/#health-and-health-research)) An apparel brand's marketing platform is not a health or fitness service. On the text, consent does not cure this. **Rating: Blocker** for sending achievements verified from Apple Watch data into marketing tools. A narrower form is discussed below.
 - **Google.** The limits cover data "derived from the raw data". Transfer needs the user's consent and must serve a feature "clear from the requesting application's user interface". Prohibited regardless of consent: transfer to "advertising platforms, data brokers, or any information resellers" and use "for serving ads, including contextual, personalized or interest-based advertising". ([policy](https://developers.google.com/health/policies/health-api-developer-user-data-policy)) Whether a brand's email tool counts is not stated. A brand that syncs the event into an ad audience plainly breaches it, and the breach would be attributed to this app. **Rating: High**; resolvable only by asking Google during verification.
 - **Garmin.** Personal data under the agreement "includes information derived from these or other data", so an achievement is covered. Data is licensed "solely for internal business purposes" (4.1). Providing user data to third-party "platforms, services, or products that have not been approved by Garmin in writing" is barred (5.2(o)), and data may not be sold "without the End User's lawful consent" (15.5). ([agreement](https://developerportal.garmin.com/sites/default/files/Garmin%20Connect%20Developer%20Program%20Agreement.pdf)) **Rating: needs written approval.** Two further Garmin clauses affect the business itself, not only events: earning income from use of the API needs Garmin's "prior written permission" (5.2(e)), and the app may not show Garmin users advertising for products that compete with Garmin's (5.2(t)), which rules out sponsors that sell sports watches or bike computers.
 
@@ -54,13 +54,24 @@ Sort events by where they come from, not by what the brand wants to do with them
 | --- | --- | --- | --- | --- |
 | 1 | Linked, joined a challenge, wishlisted, unlinked | No. These are the member's choices | Sent directly to the brand's tools, with per-brand consent | All sources |
 | 2 | Reward redeemed | The member discloses it by using the code | Arises in the brand's own store at checkout, where the order carries the code. The Shopify app can also tag the customer | All sources, with the Apple caveat below |
-| 3 | Reward earned, sent at the moment of achievement | Yes | Sent directly, with a separate signed authorization per brand | Google only after Google confirms; Garmin only with written approval; Apple never |
+| 3 | Reward earned, sent at the moment of achievement | Yes | Sent directly, with a separate signed authorization per brand | Google only after Google confirms; Garmin only with written approval; Apple only in the narrow form below, and only if Apple agrees |
 
 Because the reward is free gear, nearly every member who earns will redeem. Class 2 therefore gives the brand the "earned" signal for almost all achievers, inside its own systems, for every device. Class 3 adds only earlier timing and the few who never redeem. I recommend building classes 1 and 2 first and treating class 3 as a per-source switch that stays off until each platform has agreed.
 
 Apple caveat for class 2: my reading is that the member, not the app, makes the disclosure by presenting the code, which is how any reward has to be delivered. A reviewer could disagree. To stay on the safe side of that line, the app should not write a customer tag for achievements verified from Apple Watch data; the brand already holds the order with the code on it.
 
 For every class: no progress, minutes, distance, heart rate, baseline, pauses or misses. Brand terms must forbid loading any of these events into advertising platforms.
+
+### Could the brand count as a fitness service? (owner's argument, 16 November)
+
+The owner's argument: rewarding exercise with free gear is itself a health and fitness service, so sharing "earned" with the brand meets Apple's condition.
+
+- **The test is about the recipient.** Apple asks whether the third party receiving the data "also provide[s] a health or fitness service to the user". That this app provides one does not answer it. A brand that only funds gear and receives a signal is hard to describe that way. A brand that designed the challenge the member chose to join is easier: it is running a fitness programme for that member. Brand-designed challenges make this the strongest form of the argument.
+- **A second rule turns on purpose, not on who receives.** Guideline 5.1.3(i) bars disclosure "for advertising, marketing, or other use-based data mining purposes other than improving health management", and HealthKit data may not be used "for advertising or similar services". So a qualifying brand may use the event to run the programme: confirm the reward, congratulate, offer the next challenge. Adding the member to a promotional segment or an ad audience is marketing, whoever the brand is.
+- **It pulls against section 3.** The reward itself is allowed only if the app's publisher provides the benefit and "the data is not shared with a third party". The more the brand is presented as the fitness service provider, the weaker the claim that the platform provides the benefit.
+- **Apple decides, after the app is built.** The cost of being wrong is rejection or removal of the iOS app. Apple offers 30-minute App Review appointments to discuss the guidelines; this question should be put to Apple there before the native app is written.
+
+Result: for Apple Watch data, class 3 changes from "never" to an open question in a narrow form. The event goes only to the brand whose challenge the member joined, only with the member's permission, and only for running that programme, not for promotional or advertising use. It stays off until Apple has been asked. The limit on use would be a contract term the platform cannot police, which is the weak point. Class 2 already gives the brand the signal for Apple Watch members who redeem.
 
 ## 3. Who provides the benefit (Apple)
 
@@ -104,7 +115,7 @@ This is a judgement call an App Review reviewer will make, and it should be rais
 
 1. Terms of service, privacy policy and the separate health-data privacy policy.
 2. The per-brand link consent and the signed authorization for class 3 events.
-3. Whether the Apple benefit-provider structure in section 3 holds, and the wording that supports it.
+3. Whether the Apple benefit-provider structure in section 3 holds, the wording that supports it, and whether a brand that designs a challenge counts as providing a fitness service (section 2).
 4. The brand agreement.
 5. Whether brand funding makes any data flow a "sale" under Washington, Nevada or California law.
 6. The injury waiver and its enforceability in the launch states.

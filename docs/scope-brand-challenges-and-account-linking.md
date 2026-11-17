@@ -14,7 +14,7 @@ Two decisions in the original plan are reversed by this: "brands choose a tier; 
 
 - **Brands design the shape of a challenge; the platform sets the amount for each member.** The brand picks the metric, the activity, the format, the length and the story. The number each member has to hit still comes from that member's own baseline, inside safety limits the brand cannot change. This keeps the premise ("personalized to them") and still gives brands a campaign they can call their own. A fixed target for everyone ("run 50 km in May") is offered as an option, not the default.
 - **Heart-rate challenges use time in personal heart-rate zones, never a bpm number.** A fixed bpm is unfair and can be unsafe; zone minutes are already personalised by the device.
-- **Link identities freely, with consent, and send brands per-member events.** Decided 15 November. Events the member chose (linked, joined) go to the brand directly. "Earned" reaches the brand when the member redeems in the brand's store, which works for every device. Sending "earned" at the moment of achievement is switched on per device platform as each one agrees; Apple's rules do not allow it. See "Events to the brand" in section 2.
+- **Link identities freely, with consent, and send brands per-member events.** Decided 15 November. Events the member chose (linked, joined) go to the brand directly. "Earned" reaches the brand when the member redeems in the brand's store, which works for every device. Sending "earned" at the moment of achievement is switched on per device platform as each one agrees; for Apple Watch data that is an open question to put to Apple, in a narrow form. See "Events to the brand" in section 2.
 - **Build the generic signed join link first, then a Shopify app.** The join link gives "create a linked account quickly" for any brand. The Shopify app adds one-click joining, automatic single-use codes and order data, and removes the current "codes are honoured by hand" limit.
 - **Devices before more challenge types.** Decided 15 November. Today only Fitbit and Pixel Watch connect. Garmin comes next, then Apple Watch.
 
@@ -106,7 +106,7 @@ Field names are from the Google Health API v4 `exercise` data type, which the ap
 | That the member joined the brand's challenge | No, it is a choice | Yes, with consent |
 | Declared profile: sports, sizes, wishlist | No | With consent (group totals only today) |
 | That a reward was redeemed | The member discloses it by using the code | Yes. It happens in the brand's own store, and the brand may use it in its own tools |
-| That a reward was earned, sent before redemption | Yes, derived | Only with a separate signed authorization per brand, and only for device platforms that have agreed. Never for Apple Watch data |
+| That a reward was earned, sent before redemption | Yes, derived | Only with a separate signed authorization per brand, and only for device platforms that have agreed. For Apple Watch data, only in the narrow form in the legal first pass, if Apple agrees |
 | Progress, minutes, distance, heart rate, baseline, pauses, misses | Yes | Never |
 | Orders and revenue | No, the brand's own data | Flows in; reported back as group totals |
 
@@ -134,7 +134,7 @@ Events are sorted by where the fact comes from. The reasoning and the quoted ter
 | --- | --- | --- | --- | --- |
 | 1 | Linked, joined a challenge, wishlisted an item, unlinked | No, the member's own choices | Sent directly: a signed webhook for any brand; customer tags through the Shopify app | All |
 | 2 | Reward redeemed | Disclosed by the member at checkout | Arises in the brand's store, where the order carries the code. The Shopify app also tags the customer, except for achievements verified from Apple Watch data | All |
-| 3 | Reward earned, at the moment of achievement | Yes | Sent directly, only with a separate signed authorization for that brand | Off by default. Google after Google confirms. Garmin with written approval. Apple never |
+| 3 | Reward earned, at the moment of achievement | Yes | Sent directly, only with a separate signed authorization for that brand | Off by default. Google after Google confirms. Garmin with written approval. Apple only if Apple agrees, and then only to the brand that designed the challenge, for running that programme and not for promotion |
 
 - Rewards are free gear, so nearly everyone who earns one redeems it. Class 2 gives the brand the "earned" signal for those members, in its own systems, on every device.
 - Class 3 adds earlier timing and the few who never redeem. It is a per-device switch, because the device platforms' terms differ.
