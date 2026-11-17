@@ -73,6 +73,33 @@ The owner's argument: rewarding exercise with free gear is itself a health and f
 
 Result: for Apple Watch data, class 3 changes from "never" to an open question in a narrow form. The event goes only to the brand whose challenge the member joined, only with the member's permission, and only for running that programme, not for promotional or advertising use. It stays off until Apple has been asked. The limit on use would be a contract term the platform cannot police, which is the weak point. Class 2 already gives the brand the signal for Apple Watch members who redeem.
 
+### Can a brand receive fitness data if it promises not to market with it? (owner's question, 16 November)
+
+"Never" in the scope document was a design choice, stricter than the rules. The rules do not ban every transfer. They differ by device, and a no-marketing promise is needed everywhere but is enough nowhere.
+
+| Source | What the promise settles | What is still needed |
+| --- | --- | --- |
+| Google (Fitbit, Pixel Watch) | The flat bans: no transfer to "advertising platforms, data brokers, or any information resellers", no use "for serving ads" | The member's consent, and the transfer must "provide or improve" a feature "clear from the requesting application's user interface". Google also bars using its API "to sell information to third parties", so brand fees must pay for the programme, not for data. Confirm in verification |
+| Garmin | Nothing on its own | Garmin's written approval of the recipient (5.2(o)), and the member's consent |
+| Apple Watch | The purpose rule (no "advertising, marketing, or other use-based data mining") | The brand must itself provide the member a health or fitness service. And the reward carve-out in section 3 holds only if "the data is not shared with a third party", so any per-member fitness data to a brand puts the core product at risk. Treat as no |
+| WHOOP | Part of it: no WHOOP data "in any advertisements" without WHOOP's written consent | The member's "explicit opt-in consent". Data may never be sold or licensed, "even if an End User consents" |
+| Oura | Nothing | Oura's prior written consent. The member's consent does not override the ban |
+
+Three things a promise cannot fix:
+
+- **The platform answers for the brand.** A brand that loads the data into an ad audience breaches the device maker's terms in this app's name. The platform cannot see what a brand does with data once it has left. Audit rights, a short list of fields and deletion on unlink reduce the exposure and do not remove it.
+- **Payment turns sharing into a sale.** If a brand pays and receives member data, Washington requires the signed authorization described above, and WHOOP and Google prohibit it outright.
+- **It removes most of the reason to want the data.** Promotional emails and customer segments built on fitness data are marketing. What remains is analysis and running the programme, and group totals plus rules the platform applies on the brand's behalf cover most of that without data leaving.
+
+A new risk found while answering this: letting a brand choose which athlete levels see its challenge uses wearable data to decide who is shown a sponsored offer. Google bars using its data "for serving ads, including contextual, personalized or interest-based advertising". Whether a sponsored challenge counts as an ad is a question for Google's verification. It applies to the level filter added to the scope on 16 November. **Rating: Medium, unresolved.**
+
+### What Oura, WHOOP and Strava allow (read 16 November)
+
+- **WHOOP** ([API terms](https://developer.whoop.com/api-terms-of-use/), effective 6 October 2026). Showing a member's data to a third party is allowed with "explicit opt-in consent from the user". Not allowed: to "market, sell, license or lease data ... to any third party, even if an End User consents"; WHOOP data in advertisements without WHOOP's written consent; permanent copies of the data unless the member authorizes them. An app starts with a limit of 10 connected members and moves up through 100, 1,000 and 5,000 to unlimited, each step [reviewed by hand](https://developer.whoop.com/docs/developing/app-approval/). Closest to Google.
+- **Oura** ([API agreement](https://cloud.ouraring.com/legal/api-agreement), effective 8 June 2026). The strictest of the five. Without Oura's prior written consent the app may not use member data for "aggregating, selling, transferring, ... sharing, redistributing, or disclosing" to any third party, nor for "advertising, marketing, or commercial targeting purposes", and these bans "apply regardless of whether a User has purportedly consented". Member data includes "all data derived from or based upon such data". An app that passes data or anything derived from it to a third party for that party's products is an "Aggregator": it needs Oura's written approval for each recipient and may not use or store the data itself, which this app must do to set goals. "Aggregating, caching, or storing" member data is also on the list that needs written consent, so even the core product would need Oura's agreement. One clause (5(j)) speaks of letting others see a member's data with that member's "prior express consent", which pulls the other way; I read the specific bans as controlling.
+- **Strava** ([API agreement](https://www.strava.com/legal/api), effective 1 June 2026). Not a device maker, but many runners record there. A member's data "can only be displayed or disclosed ... to that user", sharing with third parties needs "explicit consent", and apps may not "compete with or replicate Strava functionality". Strava runs brand-sponsored challenges of its own.
+- Not read: Polar, COROS, Suunto, Samsung.
+
 ## 3. Who provides the benefit (Apple)
 
 Guideline 5.1.3(i) permits using fitness data "to provide a benefit directly to that user (such as a reduced insurance premium), provided that the app is submitted by the entity providing the benefit, and the data is not shared with a third party".

@@ -149,8 +149,25 @@ The owner's requirement: when a member connects a device, scan the last three to
 | Declared profile: sports, sizes, wishlist | No | With consent (group totals only today) |
 | That a reward was redeemed | The member discloses it by using the code | Yes. It happens in the brand's own store, and the brand may use it in its own tools |
 | That a reward was earned, sent before redemption | Yes, derived | Only with a separate signed authorization per brand, and only for device platforms that have agreed. For Apple Watch data, only in the narrow form in the legal first pass, if Apple agrees |
-| Progress, minutes, distance, heart rate, baseline, pauses, misses | Yes | Never |
+| Progress, minutes, distance, heart rate, baseline, pauses, misses | Yes | Never. Under review: see "What more brands could receive" below |
 | Orders and revenue | No, the brand's own data | Flows in; reported back as group totals |
+
+### What more brands could receive (proposal, 16 November, not yet decided)
+
+The owner asked whether brands can really receive no fitness data, and whether a no-marketing promise changes that. The rules are in [`legal-first-pass.md`](legal-first-pass.md), section 2. In short, "never" was a design choice. Some fitness data can cross with the member's opt-in, and how much depends on the device. Four steps, from least to most exposed:
+
+| Step | What the brand gets | Per member? | Where it stands |
+| --- | --- | --- | --- |
+| 1. Answers the member gives | What they train for, how often, favourite activities, events they have entered. Typed by the member, not read from a device | Yes, for linked members | No device rule applies. Needs only the link consent |
+| 2. Richer group totals | Total miles by a challenge's members, share who improved, typical weekly change, most common activity, completion by athlete level. Groups of five or more | No | Google with consent. Unclear for Apple. Oura only with its written consent |
+| 3. A finisher summary the member sends | For example "96 miles in six weeks", with a note or photo. Offered when the challenge ends. The member sees exactly what goes and chooses each time | Yes | Google and WHOOP with opt-in. Garmin with approval. For Apple Watch the app offers an image the member posts or sends themselves. The brand may not reuse it in advertising |
+| 4. A standing per-member feed | Athlete level, main activity, challenge totals | Yes | Needs a signed authorization. Google only after it confirms, Garmin with written approval, WHOOP with opt-in and never for payment. Not for Apple Watch or Oura |
+
+- Workouts and heart rate stay out at every step. The rules treat derived data like raw data, so nothing in law singles them out, but they are the most sensitive and a brand has no use for them that is not marketing.
+- Every step past 1 needs the brand's contract to forbid advertising use, and the app's "what brands see" wording to change first.
+- A brand can also set rules the platform applies for it ("offer the trail shoe to members who mostly run trails") without receiving the data. Google may treat this as personalised advertising; see the risk noted in the legal first pass.
+
+Recommendation: adopt steps 1 to 3. Ask Google and Garmin about step 4 in the applications already planned. Do not add Oura. WHOOP is workable later.
 
 ### Options for linking
 
